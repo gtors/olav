@@ -1,0 +1,5 @@
+error: `1st` is not a valid XML name: bad first character
+ --> tests/ui/invalid_element_name.rs:4:20
+  |
+4 |     let _ = xml! { [1st] { "x" } };
+  |                    ^^^^^

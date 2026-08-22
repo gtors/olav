@@ -1,0 +1,5 @@
+error: literal text inside `@cdata` must not contain the CDATA terminator `]]>`
+ --> tests/ui/cdata_terminator_in_text.rs:4:36
+  |
+4 |     let _ = xml! { root { @cdata { "a ]]> b" } } };
+  |                                    ^^^^^^^^^

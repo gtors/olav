@@ -1,0 +1,5 @@
+error: duplicate attribute `id`
+ --> tests/ui/duplicate_attr.rs:4:33
+  |
+4 |     let _ = xml! { root(id="1", id="2") { "x" } };
+  |                                 ^^

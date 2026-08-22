@@ -1,0 +1,10 @@
+error: missing condition for `if` expression
+ --> tests/ui/if_without_condition.rs:8:6
+  |
+4 |     let _ = xml! {
+  |             - if this block is the condition of the `if` expression, then it must be followed by another block
+...
+8 |     };
+  |      ^ expected condition here
+  |
+  = note: this error originates in the macro `xml` (in Nightly builds, run with -Z macro-backtrace for more info)

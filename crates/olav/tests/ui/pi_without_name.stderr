@@ -1,0 +1,5 @@
+error: expected processing instruction name
+ --> tests/ui/pi_without_name.rs:6:13
+  |
+6 |             ? { }
+  |             ^

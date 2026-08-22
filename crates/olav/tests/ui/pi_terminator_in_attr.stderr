@@ -1,0 +1,5 @@
+error: processing instruction content must not contain `?>`
+ --> tests/ui/pi_terminator_in_attr.rs:5:22
+  |
+5 |         ?xml version="1?>0"
+  |                      ^^^^^^

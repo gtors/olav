@@ -1,0 +1,25 @@
+[package]
+name = "olav_macros"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Implementation of the olav compile-time XML template macro."
+keywords = ["xml", "template", "macro", "proc-macro"]
+categories = ["template-engine", "parser-implementations"]
+include = [
+    "src/**/*.rs",
+    "Cargo.toml",
+    "LICENSE-MIT",
+    "CHANGELOG.md",
+]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { workspace = true }
+quote = { workspace = true }
+proc-macro2 = { workspace = true }

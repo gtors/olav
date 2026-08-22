@@ -1,0 +1,5 @@
+error: `bad name` is not a valid XML name: unexpected ` `
+ --> tests/ui/invalid_attr_name.rs:4:25
+  |
+4 |     let _ = xml! { root([bad name]="v") { "x" } };
+  |                         ^^^^^^^^^^

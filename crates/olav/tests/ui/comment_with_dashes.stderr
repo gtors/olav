@@ -1,0 +1,5 @@
+error: comment text must not contain `--` (forbidden by XML 1.0)
+ --> tests/ui/comment_with_dashes.rs:4:36
+  |
+4 |     let _ = xml! { root { @comment "a -- b" } };
+  |                                    ^^^^^^^^

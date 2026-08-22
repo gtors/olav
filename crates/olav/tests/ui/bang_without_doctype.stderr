@@ -1,0 +1,5 @@
+error: expected `DOCTYPE`
+ --> tests/ui/bang_without_doctype.rs:6:15
+  |
+6 |             ! html { }
+  |               ^^^^

@@ -1,0 +1,37 @@
+[package]
+name = "olav"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+readme.workspace = true
+description = "Compile-time XML template engine with maud-like syntax for Rust."
+keywords = ["xml", "template", "macro", "templating", "compile-time"]
+categories = ["template-engine", "parser-implementations"]
+include = [
+    "src/**/*.rs",
+    "tests/**/*.rs",
+    "Cargo.toml",
+    "README.md",
+    "LICENSE-MIT",
+    "CHANGELOG.md",
+]
+
+[dependencies]
+olav_macros = { path = "../olav_macros", version = "0.1.0" }
+
+[dev-dependencies]
+quick-xml = { workspace = true }
+trybuild = { workspace = true }
+criterion = { workspace = true }
+
+[[bench]]
+name = "escape"
+harness = false
+
+[[bench]]
+name = "document"
+harness = false

@@ -1,0 +1,5 @@
+error: expected expression after `@`
+ --> tests/ui/at_alone.rs:6:13
+  |
+6 |             @
+  |             ^
