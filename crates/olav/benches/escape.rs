@@ -10,7 +10,7 @@ fn bench_escape(c: &mut Criterion) {
     c.bench_function("escape_text/short", |b| {
         b.iter(|| {
             let mut out = String::new();
-            escape_text(criterion::black_box(short), &mut out);
+            escape_text(std::hint::black_box(short), &mut out);
             out
         })
     });
@@ -18,7 +18,7 @@ fn bench_escape(c: &mut Criterion) {
     c.bench_function("escape_text/heavy", |b| {
         b.iter(|| {
             let mut out = String::new();
-            escape_text(criterion::black_box(heavy), &mut out);
+            escape_text(std::hint::black_box(heavy), &mut out);
             out
         })
     });
@@ -26,7 +26,7 @@ fn bench_escape(c: &mut Criterion) {
     c.bench_function("escape_attr/heavy", |b| {
         b.iter(|| {
             let mut out = String::new();
-            escape_attr(criterion::black_box(heavy), &mut out);
+            escape_attr(std::hint::black_box(heavy), &mut out);
             out
         })
     });

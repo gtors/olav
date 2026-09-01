@@ -8,7 +8,7 @@ members = [
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.88"
 license = "MIT"
 repository = "https://github.com/gtors/olav"
 homepage = "https://github.com/gtors/olav"
@@ -16,9 +16,9 @@ documentation = "https://docs.rs/olav"
 readme = "README.md"
 
 [workspace.dependencies]
-syn = { version = "2", features = ["full", "extra-traits"] }
+syn = { version = "3", features = ["full", "extra-traits"] }
 quote = "1"
 proc-macro2 = "1"
-quick-xml = "0.36"
+quick-xml = "0.42"
 trybuild = "1"
-criterion = "0.5"
+criterion = "0.8"

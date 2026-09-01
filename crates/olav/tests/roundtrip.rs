@@ -1,15 +1,38 @@
 use olav::xml;
 use quick_xml::Reader;
-use quick_xml::events::Event;
+use quick_xml::events::{BytesText, Event};
 
 fn parse_events(s: &str) -> Vec<Event<'_>> {
     let mut reader = Reader::from_str(s);
     reader.config_mut().trim_text(false);
     let mut events = Vec::new();
+    let mut text_buf = String::new();
+    let flush = |buf: &mut String, events: &mut Vec<Event<'_>>| {
+        if !buf.is_empty() {
+            events.push(Event::Text(BytesText::from_escaped(std::mem::take(buf))));
+        }
+    };
     loop {
         match reader.read_event() {
-            Ok(Event::Eof) => break,
-            Ok(e) => events.push(e),
+            Ok(Event::Eof) => {
+                flush(&mut text_buf, &mut events);
+                break;
+            }
+            Ok(Event::Text(t)) => {
+                text_buf.push_str(t.as_ref());
+            }
+            Ok(Event::GeneralRef(r)) => match r.as_ref() {
+                "amp" => text_buf.push('&'),
+                "lt" => text_buf.push('<'),
+                "gt" => text_buf.push('>'),
+                "quot" => text_buf.push('"'),
+                "apos" => text_buf.push('\''),
+                _ => {}
+            },
+            Ok(e) => {
+                flush(&mut text_buf, &mut events);
+                events.push(e);
+            }
             Err(e) => panic!("parse error: {:?}", e),
         }
     }
@@ -20,18 +43,16 @@ fn parse_events(s: &str) -> Vec<Event<'_>> {
 fn roundtrip_simple_element() {
     let m = xml! { root { "hello" } };
     let events = parse_events(&m);
-    assert!(matches!(events[0], Event::Start(ref e) if e.name().as_ref() == b"root"));
-    assert!(
-        matches!(events[1], Event::Text(ref e) if std::str::from_utf8(e.as_ref()).unwrap() == "hello")
-    );
-    assert!(matches!(events[2], Event::End(ref e) if e.name().as_ref() == b"root"));
+    assert!(matches!(events[0], Event::Start(ref e) if e.name().as_ref() == "root"));
+    assert!(matches!(events[1], Event::Text(ref e) if e.as_ref() == "hello"));
+    assert!(matches!(events[2], Event::End(ref e) if e.name().as_ref() == "root"));
 }
 
 #[test]
 fn roundtrip_self_closing() {
     let m = xml! { br { } };
     let events = parse_events(&m);
-    assert!(matches!(events[0], Event::Empty(ref e) if e.name().as_ref() == b"br"));
+    assert!(matches!(events[0], Event::Empty(ref e) if e.name().as_ref() == "br"));
 }
 
 #[test]
@@ -39,12 +60,12 @@ fn roundtrip_with_attribute() {
     let m = xml! { book(id="42") { "x" } };
     let events = parse_events(&m);
     if let Event::Start(ref e) = events[0] {
-        assert_eq!(e.name().as_ref(), b"book");
+        assert_eq!(e.name().as_ref(), "book");
         let mut attrs: Vec<_> = e.attributes().collect();
         assert_eq!(attrs.len(), 1);
         let attr = attrs.remove(0).unwrap();
-        assert_eq!(attr.key.as_ref(), b"id");
-        assert_eq!(attr.value.as_ref(), b"42");
+        assert_eq!(attr.key.as_ref(), "id");
+        assert_eq!(attr.value.as_ref(), "42");
     } else {
         panic!("expected Start event");
     }
@@ -56,8 +77,7 @@ fn roundtrip_escapes_text() {
     let m = xml! { p { @s } };
     let events = parse_events(&m);
     if let Event::Text(ref e) = events[1] {
-        let text = e.unescape().unwrap();
-        assert_eq!(text, "a & b < c > d");
+        assert_eq!(e.as_ref(), "a & b < c > d");
     } else {
         panic!("expected Text event");
     }
@@ -67,8 +87,8 @@ fn roundtrip_escapes_text() {
 fn roundtrip_namespaced() {
     let m = xml! { [svg:svg] { [svg:rect](x="10") { } } };
     let events = parse_events(&m);
-    assert!(matches!(events[0], Event::Start(ref e) if e.name().as_ref() == b"svg:svg"));
-    assert!(matches!(events[1], Event::Empty(ref e) if e.name().as_ref() == b"svg:rect"));
+    assert!(matches!(events[0], Event::Start(ref e) if e.name().as_ref() == "svg:svg"));
+    assert!(matches!(events[1], Event::Empty(ref e) if e.name().as_ref() == "svg:rect"));
 }
 
 #[test]
@@ -80,7 +100,7 @@ fn roundtrip_pi() {
     let events = parse_events(&m);
     if let Event::Decl(ref e) = events[0] {
         let v = e.version().unwrap();
-        assert_eq!(v.as_ref(), b"1.0");
+        assert_eq!(v.as_ref(), "1.0");
     } else {
         panic!("expected Decl event");
     }
@@ -94,8 +114,7 @@ fn roundtrip_pi_stylesheet() {
     };
     let events = parse_events(&m);
     if let Event::PI(ref e) = events[0] {
-        let target = std::str::from_utf8(e.target()).unwrap();
-        assert_eq!(target, "xml-stylesheet");
+        assert_eq!(e.target(), "xml-stylesheet");
     } else {
         panic!("expected PI event");
     }
@@ -108,9 +127,7 @@ fn roundtrip_doctype() {
         root { }
     };
     let events = parse_events(&m);
-    assert!(
-        matches!(events[0], Event::DocType(ref e) if std::str::from_utf8(e.as_ref()).unwrap().contains("html"))
-    );
+    assert!(matches!(events[0], Event::DocType(ref e) if e.as_ref().contains("html")));
 }
 
 #[test]
@@ -118,8 +135,7 @@ fn roundtrip_comment() {
     let m = xml! { @comment "a note" root { } };
     let events = parse_events(&m);
     if let Event::Comment(ref e) = events[0] {
-        let text = std::str::from_utf8(e.as_ref()).unwrap();
-        assert_eq!(text, "a note");
+        assert_eq!(e.as_ref(), "a note");
     } else {
         panic!("expected Comment event");
     }
@@ -136,8 +152,7 @@ fn roundtrip_cdata() {
     };
     let events = parse_events(&m);
     if let Event::CData(ref e) = events[1] {
-        let text = std::str::from_utf8(e.as_ref()).unwrap();
-        assert_eq!(text, "<tag> & stuff");
+        assert_eq!(e.as_ref(), "<tag> & stuff");
     } else {
         panic!("expected CData event");
     }

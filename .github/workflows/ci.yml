@@ -21,18 +21,13 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         rust: [stable]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache cargo
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: |
-            .
-            crates/olav -> target
-            crates/olav_macros -> target
+        uses: Swatinem/rust-cache@v2.9.2
 
       - name: Build
         run: cargo build --locked --all-features
@@ -44,16 +39,11 @@ jobs:
     name: Clippy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: |
-            .
-            crates/olav -> target
-            crates/olav_macros -> target
+      - uses: Swatinem/rust-cache@v2.9.2
       - run: cargo clippy --all-targets --all-features --locked -- -D warnings
       - run: cargo fmt --all -- --check
 
@@ -61,14 +51,9 @@ jobs:
     name: Docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: |
-            .
-            crates/olav -> target
-            crates/olav_macros -> target
+      - uses: Swatinem/rust-cache@v2.9.2
       - run: RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features --locked
 
   msrv:
@@ -77,9 +62,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rust: ["1.85.0"]
+        rust: ["1.88.0"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: ${{ matrix.rust }}
@@ -89,8 +74,11 @@ jobs:
   audit:
     name: Security audit
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: rustsec/audit-check@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

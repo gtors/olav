@@ -46,10 +46,10 @@ fn bench_document(c: &mut Criterion) {
     let large = sample_entries(100);
 
     c.bench_function("document/feed_5_entries", |b| {
-        b.iter(|| build_feed(criterion::black_box(&small)))
+        b.iter(|| build_feed(std::hint::black_box(&small)))
     });
     c.bench_function("document/feed_100_entries", |b| {
-        b.iter(|| build_feed(criterion::black_box(&large)))
+        b.iter(|| build_feed(std::hint::black_box(&large)))
     });
 }
 
