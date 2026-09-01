@@ -80,7 +80,9 @@ jobs:
         rust: ["1.85.0"]
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@${{ matrix.rust }}
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.rust }}
       - run: cargo build --locked
       - run: cargo test --locked
 
